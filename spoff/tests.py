@@ -146,7 +146,10 @@ class UserApiTestCase(ApiTestCase):
         
         self.assertEqual(len(actual_mobile_notifications), 1)
         self.assertEqual(dev.registration_id, actual_mobile_notifications[0]["registration_id"])
-        self.assertDictEqual(json.loads(actual_mobile_notifications[0]["data"]["msg"]), {"id": new_user.id, "username": new_user.username})
+        self.assertDictEqual(
+            json.loads(actual_mobile_notifications[0]["data"]["msg"]),
+            {"id": new_user.id, "username": new_user.username, "table_code": table.code}
+        )
 
     def test_karma_cycle(self):
         resp = self.api_client.post("/api/v1/table/", data=self.table_data, **self.headers)

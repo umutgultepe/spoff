@@ -66,9 +66,9 @@ class UserResource(ModelResource):
         request.user.add_karma(-50)
         t_list = request.user.joined_tables.all()
         if t_list.exists():
-            data = json.dumps({"id": request.user.id, "username": request.user.username})
             for table in t_list:
                 m_list = table.members.exclude(pk=request.user.pk)
+                data = json.dumps({"id": request.user.id, "username": request.user.username, "table_code": table.code})
                 for m in m_list:
                     devs = GCMDevice.objects.filter(user=m)
                     for dev in devs:
