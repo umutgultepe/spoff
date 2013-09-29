@@ -1,6 +1,8 @@
 spoff
 =====
 
+Forget your phones - not your friends!
+
 An app which aims preventing people in a social event from using their mobile devices.
 
 Currently, Spoff runs on Android only. Our team only had a Android Hacker at the Yahoo Hack USA event.
