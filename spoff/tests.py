@@ -118,7 +118,7 @@ class UserApiTestCase(ApiTestCase):
         resp = self.api_client.get("/api/v1/user/", **self.json_headers)
         self.assertHttpUnauthorized(resp)
 
-    @patch('push_notifications.gcm.gcm_send_message', side_effect=_fake_gcm_send_message)
+    @patch('push_notifications.gcm.gcm_send_bulk_message', side_effect=_fake_gcm_send_message)
     def test_unlock_notification(self, _fake_gcm_send_message):
         dev = GCMDevice.objects.create(user=self.user, device_id=uuid4(), registration_id="1243")
         dev.save()
@@ -143,7 +143,7 @@ class UserApiTestCase(ApiTestCase):
         self.assertHttpOk(resp)
         
         self.assertEqual(len(actual_mobile_notifications), 1)
-        self.assertEqual(actual_mobile_notifications[0]["registration_id"], dev.registration_id)
+        self.assertIn(dev.registration_id, actual_mobile_notifications[0]["registration_ids"])
         self.assertDictEqual(json.loads(actual_mobile_notifications[0]["data"]["msg"]), {"id": new_user.id, "username": new_user.username})
                 
         
