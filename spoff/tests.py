@@ -125,6 +125,7 @@ class UserApiTestCase(ApiTestCase):
         
         resp = self.api_client.post("/api/v1/table/", data=self.table_data, **self.headers)
         self.assertHttpCreated(resp)
+        table = Table.objects.get(pk=json.loads(resp.content)["id"])
         
         new_user = User.objects.create(**self.user_data)
         new_headers = {
@@ -132,18 +133,18 @@ class UserApiTestCase(ApiTestCase):
             'HTTP_AUTHORIZATION': self.get_credentials(new_user)
         }
         
-        resp = self.api_client.post("/api/v1/table/1/join/", data=self.table_data, **new_headers)
+        resp = self.api_client.post("/api/v1/table/%s/join/" % table.code, data=self.table_data, **new_headers)
         self.assertHttpOk(resp)
         
         global actual_mobile_notifications
         actual_mobile_notifications = []
         
-        resp = self.api_client.post("/api/v1/user/unlocked/", **new_headers)
+        resp = self.api_client.get("/api/v1/user/unlocked/", **new_headers)
         self.assertHttpOk(resp)
         
         self.assertEqual(len(actual_mobile_notifications), 1)
         self.assertEqual(actual_mobile_notifications[0]["registration_id"], dev.registration_id)
-        self.assertDictEqual(json.loads(actual_mobile_notifications[0]["data"]), {"id": new_user.id, "username": new_user.username})
+        self.assertDictEqual(actual_mobile_notifications[0]["data"]["msg"], {"id": new_user.id, "username": new_user.username})
                 
         
 class TableApiTestCase(ApiTestCase):

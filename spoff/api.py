@@ -1,13 +1,13 @@
 from django.conf.urls.defaults import url
 from django.contrib.auth.models import AnonymousUser
-from django.http.response import HttpResponseBadRequest
+from django.http.response import HttpResponseBadRequest, HttpResponse
 from push_notifications.models import GCMDevice
 from spoff.models import User, Table, TableManager
 from spoff.utils import get_yahoo_profile
 from tastypie.authentication import ApiKeyAuthentication
 from tastypie.authorization import ReadOnlyAuthorization, Authorization
 from tastypie.exceptions import ImmediateHttpResponse
-from tastypie.http import HttpBadRequest
+from tastypie.http import HttpBadRequest, HttpNotFound
 from tastypie.models import ApiKey
 from tastypie.resources import ModelResource
 from tastypie.utils.urls import trailing_slash
@@ -56,7 +56,20 @@ class UserResource(ModelResource):
             "key": ApiKey.objects.get_or_create(user=user)[0].key
         })
         
-        
+    def unlocked(self, request, **kwargs):
+        self.is_authenticated(request)
+        t_list = request.user.joined_tables.all()
+        if t_list.exists():
+            data = {"id": request.user.id, "username": request.user.username}
+            for table in t_list:
+                m_list = table.members.exclude(pk=request.user.pk)
+                for m in m_list:
+                    dev = GCMDevice.objects.get(user=m)
+                    dev.send_message(data)
+        else:
+            HttpNotFound(json.dumps({"error": "User is not part of a table"}))
+        return HttpResponse()
+                
     def post_list(self, request, **kwargs):
         data = self.deserialize(request, request.body, format=request.META.get('CONTENT_TYPE', 'application/json'))
         keys = ["access_token", "secret_token", "device_id", "registration_id"]
@@ -94,7 +107,13 @@ class UserResource(ModelResource):
             "key": ApiKey.objects.get_or_create(user=u)[0].key
         }
         return self.create_response(request, response_data)
-            
+
+    def prepend_urls(self):
+        return [
+            url(r"^(?P<resource_name>%s)/unlocked%s$" % (self._meta.resource_name, trailing_slash(),),
+                self.wrap_view('unlocked'), name="api_unlocked_phone"),
+        ]            
+
 
 class TableResource(ModelResource):
     class Meta:
@@ -135,7 +154,7 @@ class TableResource(ModelResource):
             raise ImmediateHttpResponse(HttpBadRequest())
         kwargs["code"] = code
         return self.get_detail(request, **kwargs)
-    
+   
     def prepend_urls(self):
         return [
             url(r"^(?P<resource_name>%s)/(?P<code>\S+)/join%s$" % (self._meta.resource_name, trailing_slash(),),

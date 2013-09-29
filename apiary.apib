@@ -50,6 +50,22 @@ POST /api/v1/user/
 }
 
 
+Use this resource when a user unlocks his phone 
+GET /api/v1/user/unlocked
+> Content-Type: application/json
+{
+}
+< 201
+< Content-Type: application/json
+{
+}
+< 404
+< Content-Type: application/json
+{
+	"error": "User is not part of a table"
+}
+
+
 -- Table Resources --
 This resource allows you to create, join, leave and delete tables
 POST /api/v1/table/
