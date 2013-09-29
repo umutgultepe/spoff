@@ -25,3 +25,5 @@ API Docs
 You can find the api documentation here: http://docs.umut.apiary.io/
 
 Feel free to implement a client :D 
+
+The Android Client repo can be found [here](https://github.com/umutgultepe/spoff-android).
