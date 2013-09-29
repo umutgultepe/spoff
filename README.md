@@ -11,7 +11,7 @@ Currently, Spoff runs on Android only, as our team only had a Android Hacker at 
 Usage
 -----
 
-You can download the Android app from here. Once you get it, you can sign in with your YahooId
+You can download the Android app from [here](http://umutgultepe.com). Once you get it, you can sign in with your YahooId
 
 Go to a dinner with some friends. Proceed to create a table with a unique code. Make sure everybody coming to dinner gets Spoff and joins your table with the code you used.
 
