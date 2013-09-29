@@ -1,5 +1,5 @@
-
 django
 django-tastypie
 uuidfield
+mimeparse
 -e git://github.com/Adys/django-push-notifications.git#egg=push_notifications

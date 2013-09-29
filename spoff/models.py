@@ -9,7 +9,7 @@ def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
 
 
 class User(AbstractUser):
-    yahoo_id = models.IntegerField(null=True, blank=True)
+    yahoo_id = models.CharField(max_length=100, null=True, blank=True)
     yahoo_token = models.CharField(max_length=500, null=True, blank=True)
          
     def create_table(self, code=None):
