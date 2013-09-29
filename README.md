@@ -1,4 +1,4 @@
-spoff
+Spoff - Smart Phone Off
 =====
 
 Forget your phones - not your friends!
