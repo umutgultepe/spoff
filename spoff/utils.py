@@ -5,11 +5,14 @@ from push_notifications.models import GCMDevice
 from spoff.models import User
 import json
 
+
 def test_message(user_id):
     u = User.objects.get(pk=user_id)
-    dev = GCMDevice.objects.get(user=u)
+    devs = GCMDevice.objects.filter(user=u)
     data = json.dumps({"id": u.id, "username": u.username})
-    dev.send_message(data)
+    for dev in devs:
+        dev.send_message(data)
+
 
 def get_yahoo_profile(access_token, secret_token):
     oauthapp = OAuthApplication(
