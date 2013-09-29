@@ -2,12 +2,12 @@ from django.contrib.auth.models import AnonymousUser
 from django.http.response import HttpResponseBadRequest
 from push_notifications.models import GCMDevice
 from spoff.models import User, Table
+from spoff.utils import get_yahoo_profile
 from tastypie.authentication import ApiKeyAuthentication
 from tastypie.authorization import ReadOnlyAuthorization, Authorization
 from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.models import ApiKey
 from tastypie.resources import ModelResource
-from spoff.utils import get_yahoo_profile
 
 
 class UserAuthorization(ReadOnlyAuthorization):
@@ -55,12 +55,12 @@ class UserResource(ModelResource):
         
     def post_list(self, request, **kwargs):
         data = self.deserialize(request, request.body, format=request.META.get('CONTENT_TYPE', 'application/json'))
-        keys = ["request_token", "oauth_verifier", "device_id", "registration_id"]
+        keys = ["access_token", "device_id", "registration_id"]
         for k in keys:
             if k not in data:
                 raise ImmediateHttpResponse(HttpResponseBadRequest("missing data"))
             
-        profile = get_yahoo_profile(data["request_token"], data["oauth_verifier"])
+        profile = get_yahoo_profile(data["access_token"])
             
         try:
             u = User.objects.get(yahoo_id=profile["guid"])
@@ -95,7 +95,12 @@ class UserResource(ModelResource):
 class TableResource(ModelResource):
     class Meta:
         queryset = Table.objects.all()
+        authentication = ApiKeyAuthentication()
+        authorization = Authorization()
         allowed_methods = ['get', 'post', 'delete']
+        
+        
+    
         
             
     

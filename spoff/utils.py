@@ -3,14 +3,14 @@ from yahoo.application import OAuthApplication
 from yahoo.oauth import AccessToken
 
 
-def get_yahoo_profile(request_token, verifier):
+def get_yahoo_profile(access_token):
     oauthapp = OAuthApplication(
         settings.YAHOO_CONSUMER_KEY,
         settings.YAHOO_CONSUMER_SECRET,
         settings.YAHOO_APPLICATION_ID,
         settings.YAHOO_CALLBACK_URL
     )
-    access_token  = oauthapp.get_access_token(request_token, verifier)
-    oauthapp.token = access_token
+    auth_token  = AccessToken.from_string(access_token)
+    oauthapp.token = auth_token
     profile = oauthapp.getProfile()
     return profile
