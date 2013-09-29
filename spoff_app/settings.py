@@ -169,11 +169,13 @@ LOGGING = {
     }
 }
 
-if IS_TEST:
-    DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}
-    
-    
 try:
     from settings_local import *
 except ImportError:
     pass 
+
+
+if IS_TEST:
+    DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}
+    
+    
