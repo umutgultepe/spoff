@@ -27,7 +27,7 @@ class TableTestCase(TestCase):
     def test_user_can_join_table(self):
         table = self.user.create_table("test_code")
         new_user = User.objects.create(username="julio@yahoo.com", email="julio@yahoo.com")
-        new_user.join_table("test_code")
+        new_user.join_table(1)
         self.assertEqual(table.members.count(), 2, "member not joined")
 
 
@@ -129,6 +129,8 @@ class TableApiTestCase(ApiTestCase):
         self.assertEqual(Table.objects.count(), 1)
         table = json.loads(resp.content)
         self.assertIn("id", table)
+        self.assertIn("members", table)
+        self.assertEqual(Table.objects.latest("pk").members.count(),1)
         self.assertEqual(table["code"], self.table_code)       
         resp = self.api_client.delete("/api/v1/table/%s/" % table["id"], **self.headers)
         self.assertHttpAccepted(resp)
@@ -146,15 +148,16 @@ class TableApiTestCase(ApiTestCase):
             'HTTP_AUTHORIZATION': self.get_credentials(new_user)
         }
         
-        # Join a table
-        self.api_client.post("/api/v1/table/%s/join/" % table["id"], **new_headers)
+        only_table = Table.objects.get(pk=table["id"])
+        # Join a table1
+        resp = self.api_client.post("/api/v1/table/%s/join/" % table["id"], **new_headers)
         self.assertHttpOk(resp)
         self.assertEqual(only_table.members.count(), 2)
         
         # leave a table
-        self.api_client.post("/api/v1/table/%s/leave/" % table["id"], **new_headers)
+        resp = self.api_client.post("/api/v1/table/%s/leave/" % table["id"], **new_headers)
         self.assertHttpOk(resp)
-        self.assertEqual(only_table.members.count(), 2)
+        self.assertEqual(only_table.members.count(), 1)
         
         
     

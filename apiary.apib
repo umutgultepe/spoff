@@ -71,7 +71,53 @@ POST /api/v1/table/
 	]
 }
 
+This resource is for joining a table using table id.
+POST /api/v1/table/<table_id>/join/
+{ 
+}
+< 201
+{
+	"id": 5245243,
+	"code": "123asfv0",
+	"creator_id": "12134",
+	"members": [
+		{
+			"id": 214231,
+			"username": umutgultepe
+		}
+		.
+		.
+	]
+}
++++++
+< 404 (Table Not Found)
+{
+}
 
+This resource is for leaving a table using table id.
+POST /api/v1/table/<table_id>/join/
+{ 
+}
+< 201
+{
+	"id": 5245243,
+	"code": "123asfv0",
+	"creator_id": "12134",
+	"members": [
+		{
+			"id": 214231,
+			"username": umutgultepe
+		}
+		.
+		.
+	]
+}
++++++
+< 404 (Table Not Found)
+{
+}
+
+This is for deleting a table
 DELETE /api/v1/table/<table_id>/
 { }
 < 204
