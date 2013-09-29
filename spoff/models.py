@@ -11,7 +11,7 @@ def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
 class User(AbstractUser):
     yahoo_id = models.CharField(max_length=100, null=True, blank=True, unique=True)
     yahoo_token = models.CharField(max_length=500, null=True, blank=True)
-
+    karma = models.IntegerField(default=0)
     USERNAME_FIELD = "yahoo_id"
              
     def create_table(self, code=None):
@@ -31,9 +31,13 @@ class User(AbstractUser):
             table = Table.objects.get(pk=pk)
         except Table.DoesNotExist:
             return False
-        
+        self.add_karma(100)
         table.members.add(self)
         return True
+
+    def add_karma(self, amount):
+        self.karma = self.karma + amount
+        self.save()
         
     def leave_table(self, pk):
         try:

@@ -44,21 +44,26 @@ class UserResource(ModelResource):
         allowed_methods = ['get', 'post', 'delete']
         authentication = UserAuthentication()
         authorization = Authorization()
-        
-    def get_list(self, request, **kwargs):
-        
-        user = request.user
-        
+
+    def user_data_response(self, request, user=None):
+        if user is None:
+            user = request.user
         return self.create_response(request, {
             "id": user.id,
             "email": user.email,
             "yahoo_id": user.yahoo_id,
             "username": user.username,
-            "key": ApiKey.objects.get_or_create(user=user)[0].key
+            "key": ApiKey.objects.get_or_create(user=user)[0].key,
+            "karma": user.karma
         })
+        
+    def get_list(self, request, **kwargs):
+        return self.user_data_response(request)
+
         
     def unlocked(self, request, **kwargs):
         self.is_authenticated(request)
+        request.user.add_karma(-50)
         t_list = request.user.joined_tables.all()
         if t_list.exists():
             data = json.dumps({"id": request.user.id, "username": request.user.username})
@@ -68,7 +73,7 @@ class UserResource(ModelResource):
                 devs.send_message(data)
         else:
             HttpNotFound(json.dumps({"error": "User is not part of a table"}))
-        return HttpResponse()
+        return self.user_data_response(request)
                 
     def post_list(self, request, **kwargs):
         data = self.deserialize(request, request.body, format=request.META.get('CONTENT_TYPE', 'application/json'))
@@ -99,14 +104,7 @@ class UserResource(ModelResource):
                 device.save()
         else:
             device.save()
-        response_data = {
-            "id": u.id,
-            "email": u.email,
-            "yahoo_id": u.yahoo_id,
-            "username": u.username,
-            "key": ApiKey.objects.get_or_create(user=u)[0].key
-        }
-        return self.create_response(request, response_data)
+        return self.user_data_response(request, u)
 
     def prepend_urls(self):
         return [

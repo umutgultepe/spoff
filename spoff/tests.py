@@ -94,6 +94,7 @@ class UserApiTestCase(ApiTestCase):
         self.assertIn("id", user)
         self.assertIn("email", user)
         self.assertIn("key", user)
+        self.assertIn("karma", user)
     
     #----------------------------------------- def test_user_registration(self):
         #------------------------------------------------- self.post_user_data()
@@ -112,6 +113,7 @@ class UserApiTestCase(ApiTestCase):
         user = json.loads(resp.content)
         self.assertEqual(self.user.id, user["id"])
         self.assertEqual(self.user.email, user["email"])
+        self.assertEqual(self.user.karma, user["karma"])
         self.assertEqual(ApiKey.objects.get(user=self.user).key, user["key"]) 
         
     def test_cannot_get_details_without_authentication(self):
@@ -145,7 +147,27 @@ class UserApiTestCase(ApiTestCase):
         self.assertEqual(len(actual_mobile_notifications), 1)
         self.assertIn(dev.registration_id, actual_mobile_notifications[0]["registration_ids"])
         self.assertDictEqual(json.loads(actual_mobile_notifications[0]["data"]["msg"]), {"id": new_user.id, "username": new_user.username})
-                
+
+    def test_karma_cycle(self):
+        resp = self.api_client.post("/api/v1/table/", data=self.table_data, **self.headers)
+        self.assertHttpCreated(resp)
+        table = Table.objects.get(pk=json.loads(resp.content)["id"])
+        
+        new_user = User.objects.create(**self.user_data)
+        new_headers = {
+            'CONTENT_TYPE': 'application/json',
+            'HTTP_AUTHORIZATION': self.get_credentials(new_user)
+        }
+        
+        resp = self.api_client.post("/api/v1/table/%s/join/" % table.code, data=self.table_data, **new_headers)
+        self.assertHttpOk(resp)
+        new_user = User.objects.get(pk=new_user.pk)
+        self.assertEqual(new_user.karma, 100)
+        resp = self.api_client.get("/api/v1/user/unlocked/", **new_headers)
+        self.assertHttpOk(resp)
+        new_user = User.objects.get(pk=new_user.pk)
+        self.assertEqual(new_user.karma, 50)
+        
         
 class TableApiTestCase(ApiTestCase):
     
