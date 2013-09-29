@@ -124,7 +124,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'spoff',
     'push_notifications',
-    'tastypie'
+    'tastypie',
+    'south'
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -170,3 +171,9 @@ LOGGING = {
 
 if IS_TEST:
     DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}
+    
+    
+try:
+    from settings_local import *
+except ImportError:
+    pass 
