@@ -7,6 +7,8 @@ from tastypie.authorization import ReadOnlyAuthorization, Authorization
 from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.models import ApiKey
 from tastypie.resources import ModelResource
+from spoff.utils import get_yahoo_profile
+
 
 class UserAuthorization(ReadOnlyAuthorization):
     def read_list(self, object_list, bundle):
@@ -43,11 +45,11 @@ class UserResource(ModelResource):
         user = request.user
         
         return self.create_response(request, {
-            "id": u.id,
-            "email": u.email,
-            "yahoo_id": u.yahoo_id,
-            "username": u.username,
-            "key": ApiKey.objects.get_or_create(user=u)[0].key
+            "id": user.id,
+            "email": user.email,
+            "yahoo_id": user.yahoo_id,
+            "username": user.username,
+            "key": ApiKey.objects.get_or_create(user=user)[0].key
         })
         
         

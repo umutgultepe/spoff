@@ -1,5 +1,6 @@
-from yahoo.application import OAuthApplication
 from django.conf import settings
+from yahoo.application import OAuthApplication
+from yahoo.oauth import AccessToken
 
 
 def get_yahoo_profile(access_token):

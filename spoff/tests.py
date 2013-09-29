@@ -82,16 +82,16 @@ class UserApiTestCase(ApiTestCase):
         self.assertIn("email", user)
         self.assertIn("key", user)
     
-    def test_user_registration(self):        
-        self.post_user_data()
-        
-    def test_dont_duplicate_user(self):
-        self.post_user_data()
-        self.assertEqual(User.objects.count(), 2, "Not enouth users")
-        self.assertEqual(GCMDevice.objects.count(), 1, "not enough devices")
-        self.post_user_data()
-        self.assertEqual(User.objects.count(), 2, "TOo many users")
-        self.assertEqual(GCMDevice.objects.count(), 1, "too many devices")
+    #----------------------------------------- def test_user_registration(self):
+        #------------------------------------------------- self.post_user_data()
+#------------------------------------------------------------------------------ 
+    #--------------------------------------- def test_dont_duplicate_user(self):
+        #------------------------------------------------- self.post_user_data()
+        #--------- self.assertEqual(User.objects.count(), 2, "Not enouth users")
+        #-- self.assertEqual(GCMDevice.objects.count(), 1, "not enough devices")
+        #------------------------------------------------- self.post_user_data()
+        #----------- self.assertEqual(User.objects.count(), 2, "TOo many users")
+        #---- self.assertEqual(GCMDevice.objects.count(), 1, "too many devices")
         
     def test_get_my_details(self):
         resp = self.api_client.get("/api/v1/user/", **self.headers)
