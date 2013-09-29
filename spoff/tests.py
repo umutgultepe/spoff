@@ -199,6 +199,11 @@ class TableApiTestCase(ApiTestCase):
         self.assertIn("creator_id", table)
         self.assertEqual(Table.objects.latest("pk").members.count(),1)
         self.assertEqual(table["code"], self.table_code)       
+        
+        # make sure join does not delete table
+        resp = self.api_client.post("/api/v1/table/%s/join/" % table["code"], **self.headers)
+        self.assertHttpOk(resp)
+        
         resp = self.api_client.delete("/api/v1/table/%s/" % table["code"], **self.headers)
         self.assertHttpAccepted(resp)
         self.assertEqual(Table.objects.count(), 0)
