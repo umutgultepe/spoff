@@ -5,11 +5,11 @@ Forget your phones - not your friends!
 
 An app which aims preventing people in a social event from using their mobile devices.
 
-Currently, Spoff runs on Android only. Our team only had a Android Hacker at the Yahoo Hack USA event.
+Currently, Spoff runs on Android only, as our team only had a Android Hacker at the Yahoo Hack USA event.
 
 
 Usage
-_____
+-----
 
 You can download the Android app from here. Once you get it, you can sign in with your YahooId
 
@@ -19,7 +19,7 @@ After the dinner starts and everybody joins the table, no one should even look a
 
 
 API Docs
-________
+-----
 
 
 You can find the api documentation here: http://docs.umut.apiary.io/
