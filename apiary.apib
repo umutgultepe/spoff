@@ -1,4 +1,4 @@
-HOST: http://www.google.com/
+HOST: http://staging.eversnapapp.com:8090/
 
 --- Spoff API ---
 ---
@@ -57,6 +57,7 @@ POST /api/v1/table/
 	"code": "123asfv0"
 }
 < 201
+< Content-Type: application/json
 {
 	"id": 5245243,
 	"code": "123asfv0",
@@ -70,6 +71,7 @@ POST /api/v1/table/
 		.
 	]
 }
+
 
 This resource is for joining a table using table id.
 POST /api/v1/table/<table_id>/join/
@@ -91,8 +93,10 @@ POST /api/v1/table/<table_id>/join/
 }
 +++++
 < 404 (Table Not Found)
+< Content-Type: application/json
 {
 }
+
 
 This resource is for leaving a table using table id.
 POST /api/v1/table/<table_id>/join/
@@ -114,10 +118,16 @@ POST /api/v1/table/<table_id>/join/
 }
 +++++
 < 404 (Table Not Found)
+< Content-Type: application/json
 {
 }
 
+
 This is for deleting a table
 DELETE /api/v1/table/<table_id>/
-{ }
+{ 
+}
 < 204
+< Content-Type: application/json
+{
+}
