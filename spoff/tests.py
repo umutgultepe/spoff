@@ -177,6 +177,17 @@ class TableApiTestCase(ApiTestCase):
         resp = self.api_client.delete("/api/v1/table/%s/" % table["code"], **self.headers)
         self.assertHttpAccepted(resp)
         self.assertEqual(Table.objects.count(), 0)
+
+    def test_get_table_details(self):
+        resp = self.create_table()
+        self.assertEqual(Table.objects.count(), 1)
+        table = json.loads(resp.content)
+        resp = self.api_client.get("/api/v1/table/%s/" % table["code"], **self.headers)
+        self.assertHttpOk(resp)
+        table = json.loads(resp.content)
+        self.assertIn("id", table)
+        self.assertIn("members", table)
+        self.assertIn("creator_id", table)
         
     def test_join_leave_table(self):
         resp = self.create_table()
