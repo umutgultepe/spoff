@@ -243,5 +243,32 @@ class TableApiTestCase(ApiTestCase):
         self.assertHttpOk(resp)
         self.assertEqual(only_table.members.count(), 1)
         
+    def test_second_join_leaves_first_table(self):
+        resp = self.create_table()
+        self.assertHttpCreated(resp)
+        self.assertEqual(Table.objects.count(), 1)
+        
+        table = json.loads(resp.content)
+        
+        new_user = User.objects.create(**self.user_data)
+        new_headers = {
+            'CONTENT_TYPE': 'application/json',
+            'HTTP_AUTHORIZATION': self.get_credentials(new_user)
+        }
+        
+        only_table = Table.objects.get(pk=table["id"])
+        # Join a table1
+        resp = self.api_client.post("/api/v1/table/%s/join/" % self.table_code, **new_headers)
+        self.assertHttpOk(resp)
+        self.assertEqual(only_table.members.count(), 2)
+        
+        new_table = Table.objects.create(code="asdb", creator=self.user)
+        new_table.members.add(self.user)
+        
+        # Join a table1
+        resp = self.api_client.post("/api/v1/table/%s/join/" % "asdb", **new_headers)
+        self.assertHttpOk(resp)
+        old_table = Table.objects.get(pk=table["id"])
+        self.assertEqual(old_table.members.count(), 1)       
         
     

@@ -32,6 +32,12 @@ class User(AbstractUser):
         except Table.DoesNotExist:
             return False
         self.add_karma(100)
+        old_tables = Table.objects.filter(members=self)
+        for t in old_tables:
+            if t.creator == self:
+                t.delete()
+            else:
+                t.members.remove(self)
         table.members.add(self)
         return True
 
