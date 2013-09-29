@@ -3,6 +3,7 @@ from yahoo.application import OAuthApplication
 from yahoo.oauth import AccessToken
 from push_notifications.models import GCMDevice
 from spoff.models import User
+import json
 
 def test_message(user_id):
     u = User.objects.get(pk=user_id)

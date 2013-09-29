@@ -133,7 +133,7 @@ INSTALLED_APPS = (
 )
 
 PUSH_NOTIFICATIONS_SETTINGS = {
-    "GCM_API_KEY": "g9BeTU6VONtfYT0VI1l8xbgo",
+    "GCM_API_KEY": "AIzaSyBac6M9fSJffG5tfZTtS4bCFtp93qPEedQ",
 }
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
