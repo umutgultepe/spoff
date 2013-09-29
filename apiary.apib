@@ -53,6 +53,25 @@ POST /api/v1/user/
 -- Table Resources --
 This resource allows you to create, join, leave and delete tables
 POST /api/v1/table/
-{ "cc": "12345678900", "cvc": "123", "expiry": "0112" }
-< 200
-{ "receipt": "/payment/receipt/1" }
+{ 
+	"code": "123asfv0"
+}
+< 201
+{
+	"id": 5245243,
+	"code": "123asfv0",
+	"creator_id": "12134",
+	"members": [
+		{
+			"id": 214231,
+			"username": umutgultepe
+		}
+		.
+		.
+	]
+}
+
+
+DELETE /api/v1/table/<table_id>/
+{ }
+< 204

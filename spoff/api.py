@@ -1,13 +1,14 @@
 from django.contrib.auth.models import AnonymousUser
 from django.http.response import HttpResponseBadRequest
 from push_notifications.models import GCMDevice
-from spoff.models import User, Table
+from spoff.models import User, Table, TableManager
 from spoff.utils import get_yahoo_profile
 from tastypie.authentication import ApiKeyAuthentication
 from tastypie.authorization import ReadOnlyAuthorization, Authorization
 from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.models import ApiKey
 from tastypie.resources import ModelResource
+from tastypie.http import HttpBadRequest
 
 
 class UserAuthorization(ReadOnlyAuthorization):
@@ -98,14 +99,34 @@ class TableResource(ModelResource):
         authentication = ApiKeyAuthentication()
         authorization = Authorization()
         allowed_methods = ['get', 'post', 'delete']
-        
-        
-    
-        
+        fields = ["creator", "date_created", "code", "id"]
+        always_return_data = True
+                
+    def obj_create(self, bundle, **kwargs):
+        creator = bundle.request.user
+        code = bundle.data.get("code", Table.objects.get_unique_code()) 
+        bundle = super(TableResource, self).obj_create(bundle, code=code, creator=creator, **kwargs)
+        bundle.obj.members.add(bundle.request.user)
+        return bundle
             
+    def dehydrate(self, bundle):
+        m_list = []
+        for u in bundle.obj.members.all():
+            m_list.append({"id": u.id, "username": u.username})
+        bundle.data["members"] = m_list
+        return bundle
     
-    
-    
+    def join_table(self, request, pk, **kwargs):
+        self.is_authenticated(request)
+        table = get_object_or_404(Table, pk=pk)
+        if not request.user.join_table(table):
+            raise ImmediateHttpResponse(HttpBadRequest())
+        self.create_response(request)
         
-        
     
+    def prepend_urls(self):
+        return [
+            url(r"^(?P<resource_name>%s)/(?P<pk>\d+)/join%s$" % (self._meta.resource_name, trailing_slash(),),
+                self.wrap_view('join_table'), name="api_join_table"),
+        ]
+        

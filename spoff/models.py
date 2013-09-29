@@ -24,17 +24,24 @@ class User(AbstractUser):
         t.members.add(self)
         return t
     
-    def join_table(self, code):
+    def join_table(self, pk):
         try:
-            table = Table.objects.get(code=code)
+            table = Table.objects.get(pk=pk)
         except Table.DoesNotExist:
             return False
         
         table.members.add(self)
+        return True
         
+    def leave_table(self, pk):
+        try:
+            table = Table.objects.get(pk=pk)
+        except Table.DoesNotExist:
+            return False
         
-    
-            
+        table.members.remove(self)
+        return True
+        
             
 class TableManager(models.Manager):
     def check_unique_code(self, code):

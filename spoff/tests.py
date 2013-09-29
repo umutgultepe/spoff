@@ -121,8 +121,8 @@ class TableApiTestCase(ApiTestCase):
         self.table_data = {"code": self.table_code}
     
     def create_table(self):
-        resp = self.api_client.post("/api/v1/table/", self.table_data, **self.headers)
-        self.assertHttpOk(resp)
+        resp = self.api_client.post("/api/v1/table/", data=self.table_data, **self.headers)
+        self.assertHttpCreated(resp)
         return resp
                 
     def test_create_delete_table(self):
@@ -130,14 +130,16 @@ class TableApiTestCase(ApiTestCase):
         self.assertEqual(Table.objects.count(), 1)
         table = json.loads(resp.content)
         self.assertIn("id", table)
-        self.assertEqual(table.code, self.table_data["code"])       
-        resp = self.api_client.delete("/api/v1/table/%s/" % self.table_code, **self.headers)
-        self.assertHttpOk(resp)
+        self.assertEqual(table["code"], self.table_code)       
+        resp = self.api_client.delete("/api/v1/table/%s/" % table["id"], **self.headers)
+        self.assertHttpAccepted(resp)
         self.assertEqual(Table.objects.count(), 0)
         
     def test_join_leave_table(self):
         resp = self.create_table()
         self.assertEqual(Table.objects.count(), 1)
+        
+        table = json.loads(resp.content)
         
         resp = self.api_client.post("/api/v1/user/", self.user_data)
         self.assertHttpOk(resp)
@@ -149,12 +151,12 @@ class TableApiTestCase(ApiTestCase):
         }
         
         # Join a table
-        self.api_client.post("api/v1/table/%s/join/" % self.table_code, **new_headers)
+        self.api_client.post("api/v1/table/%s/join/" % table["id"], **new_headers)
         self.assertHttpOk(resp)
         self.assertEqual(only_table.members.count(), 2)
         
         # leave a table
-        self.api_client.post("api/v1/table/%s/leave/" % self.table_code, **new_headers)
+        self.api_client.post("api/v1/table/%s/leave/" % table["id"], **new_headers)
         self.assertHttpOk(resp)
         self.assertEqual(only_table.members.count(), 2)
         
