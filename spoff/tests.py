@@ -6,7 +6,7 @@ Replace this with more appropriate tests for your application.
 """
 from django.test import TestCase
 from push_notifications.models import GCMDevice
-from spoff.models import User
+from spoff.models import User, Table
 from tastypie.models import ApiKey
 from tastypie.test import ResourceTestCase
 from uuid import uuid4
@@ -117,6 +117,32 @@ class TableApiTestCase(ApiTestCase):
             "device_id": uuid4(),
             "registration_id": "3fh38"
         }
+        self.table_data = {"code": "dinners_stuff"}
     
-    def test_create_table(self):
-        table_data = {"code": "dinners_stuff"}
+    def create_table(self):
+        resp = self.api_client.post("/api/v1/table/", self.table_data, **self.headers)
+        self.assertHttpOk(resp)
+        return resp
+                
+    def test_create_delete_table(self):
+        resp = self.create_table()
+        self.assertEqual(Table.objects.count(), 1)
+        table = json.loads(resp.content)
+        self.assertIn("id", table)
+        self.assertEqual(table.code, self.table_data["code"])       
+        resp = self.api_client.delete("/api/v1/table/%s/" % self.table_data["code"], **self.headers)
+        self.assertHttpOk(resp)
+        self.assertEqual(Table.objects.count(), 0)
+        
+    def test_join_leave_table(self):
+        resp = self.create_table()
+        self.assertEqual(Table.objects.count(), 1)
+        
+        resp = new_user = self.api_client.post("/api/v1/user/", self.user_data)
+        self.assertHttpOk(resp)
+        id = json.loads(resp.content)["id"]
+        
+        self.api_client.post("api/v1/table/%s/join/", data=)
+        
+        
+    

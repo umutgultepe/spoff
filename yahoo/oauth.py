@@ -160,7 +160,9 @@ class Client(oauthlib.oauth.OAuthClient):
 
   def fetch_access_token(self, oauth_request):
     self.connection.request(oauth_request.http_method, self.access_token_url, headers=oauth_request.to_header('yahooapis.com'))
-    return AccessToken.from_string(self.connection.getresponse().read().strip())
+    s = self.connection.getresponse().read()
+    print s
+    return AccessToken.from_string(s.strip())
 
   def authorize_token(self, oauth_request):
     self.connection.request(oauth_request.http_method, self.authorization_url, headers=oauth_request.to_header('yahooapis.com'))
