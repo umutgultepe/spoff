@@ -1,7 +1,7 @@
-from tastypie.api import Api
-from spoff.api import UserResource, TableResource
-
 from django.conf.urls import patterns, include, url
+from spoff.api import UserResource, TableResource
+from tastypie.api import Api
+from spoff.views import HomePage
 
 api = Api(api_name='v1')
 api.register(UserResource())
@@ -17,5 +17,6 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
+    url(r'^$', HomePage.as_view()),
     url(r'^api/', include(api.urls)),
 )

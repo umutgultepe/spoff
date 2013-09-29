@@ -141,7 +141,7 @@ class TableResource(ModelResource):
     def dehydrate(self, bundle):
         m_list = []
         for u in bundle.obj.members.all():
-            m_list.append({"id": u.id, "username": u.username})
+            m_list.append({"id": u.id, "username": u.username, "karma": u.karma})
         bundle.data["members"] = m_list
         bundle.data["creator_id"] = bundle.obj.creator_id
         return bundle

@@ -273,5 +273,10 @@ class TableApiTestCase(ApiTestCase):
         self.assertHttpOk(resp)
         old_table = Table.objects.get(pk=table["id"])
         self.assertEqual(old_table.members.count(), 1)       
+      
         
+class HomePageTestCase(TestCase):
     
+    def test_home_page(self):
+        resp = self.client.get("/")
+        self.assertEqual(200, resp.status_code)    
