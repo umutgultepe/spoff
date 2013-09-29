@@ -14,10 +14,13 @@ GET /api/v1/user/
 < 200
 < Content-Type: application/json
 { 
-	"id":123,
+	"id": 123,
 	"email": "umutgultepe@yahoo.com",
-	"key": "i12312i312sdcc"
+	"key": "i12312i312sdcc",
+	"yahoo_id": "20893r54y29",
+	"username": "umutgultepe"
 }
++++++
 <401
 < Content-Type: application/json
 { 
@@ -29,12 +32,10 @@ Login/SignUp with Yahoo.
 POST /api/v1/user/
 > Content-Type: application/json
 {
-	"yahoo_id": "3324e12374",
-	"email": "umutgultepe@yahoo.com",
+	"short_token": "308ewhfr",
+	"yahoo_token": "adsfsdvgerfbvqrwe3gt25tq42,
 	"device_id": "1AB23ORM",
 	"registration_id": "afsdfswe213"
-	"first_name": "Umut",
-	"last_name": "Gultepe"
 }
 < 201
 < Content-Type: application/json
@@ -42,8 +43,8 @@ POST /api/v1/user/
 	"id": 123,
 	"email": "umutgultepe@yahoo.com",
 	"key": "i12312i312sdcc",
-	"first_name": "Umut",
-	"last_name": "Gultepe"
+	"yahoo_id": "20893r54y29",
+	"username": "umutgultepe"
 }
 
 

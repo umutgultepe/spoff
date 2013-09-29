@@ -43,25 +43,29 @@ class UserResource(ModelResource):
         user = request.user
         
         return self.create_response(request, {
-            "id": user.id,
-            "key": ApiKey.objects.get_or_create(user=user)[0].key,
-            "email": user.email
+            "id": u.id,
+            "email": u.email,
+            "yahoo_id": u.yahoo_id,
+            "username": u.username,
+            "key": ApiKey.objects.get_or_create(user=u)[0].key
         })
         
         
     def post_list(self, request, **kwargs):
         data = self.deserialize(request, request.body, format=request.META.get('CONTENT_TYPE', 'application/json'))
-        keys = ["yahoo_id", "device_id", "registration_id", "email"]
+        keys = ["yahoo_token", "device_id", "registration_id"]
         for k in keys:
             if k not in data:
                 raise ImmediateHttpResponse(HttpResponseBadRequest("missing data"))
             
+        profile = get_yahoo_profile(data["yahoo_token"])
+            
         try:
-            u = User.objects.get(yahoo_id=data["yahoo_id"])
+            u = User.objects.get(yahoo_id=profile["guid"])
         except User.DoesNotExist:
             device_id = data.pop("device_id")
             registration_id = data.pop("registration_id")
-            u = User.objects.create(username=data["email"], **data)
+            u = User.objects.create(yahoo_id=profile["guid"], email=profile["guid"] + "@yahoo.com", username=profile["nickname"])
             u.save()
             device, created = GCMDevice.objects.get_or_create(
                 device_id=device_id,
@@ -79,6 +83,8 @@ class UserResource(ModelResource):
         response_data = {
             "id": u.id,
             "email": u.email,
+            "yahoo_id": u.yahoo_id,
+            "username": u.username,
             "key": ApiKey.objects.get_or_create(user=u)[0].key
         }
         return self.create_response(request, response_data)

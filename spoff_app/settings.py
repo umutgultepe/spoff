@@ -169,6 +169,11 @@ LOGGING = {
     }
 }
 
+YAHOO_CONSUMER_KEY      = 'dj0yJmk9SDZZS00yNEJuUjhDJmQ9WVdrOVUxZEdkako2TldNbWNHbzlPVEV4TnpBNU56WXkmcz1jb25zdW1lcnNlY3JldCZ4PTM3'
+YAHOO_CONSUMER_SECRET   = '93004e08f2456aea2de16ec4466ea09dec613d47'
+YAHOO_APPLICATION_ID    = 'SWFv2z5c'
+YAHOO_CALLBACK_URL      = 'my-soff-oauthflow://callback'
+
 try:
     from settings_local import *
 except ImportError:

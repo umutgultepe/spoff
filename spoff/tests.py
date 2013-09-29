@@ -119,4 +119,4 @@ class TableApiTestCase(ApiTestCase):
         }
     
     def test_create_table(self):
-        pass
+        table_data = {"code": "dinners_stuff"}
