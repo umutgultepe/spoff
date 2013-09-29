@@ -12,6 +12,7 @@ from tastypie.models import ApiKey
 from tastypie.resources import ModelResource
 from tastypie.utils.urls import trailing_slash
 from django.shortcuts import get_object_or_404
+import json
 
 class UserAuthorization(ReadOnlyAuthorization):
     def read_list(self, object_list, bundle):
@@ -60,7 +61,7 @@ class UserResource(ModelResource):
         self.is_authenticated(request)
         t_list = request.user.joined_tables.all()
         if t_list.exists():
-            data = {"id": request.user.id, "username": request.user.username}
+            data = json.dumps({"id": request.user.id, "username": request.user.username})
             for table in t_list:
                 m_list = table.members.exclude(pk=request.user.pk)
                 for m in m_list:

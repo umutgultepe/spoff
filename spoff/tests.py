@@ -144,7 +144,7 @@ class UserApiTestCase(ApiTestCase):
         
         self.assertEqual(len(actual_mobile_notifications), 1)
         self.assertEqual(actual_mobile_notifications[0]["registration_id"], dev.registration_id)
-        self.assertDictEqual(actual_mobile_notifications[0]["data"]["msg"], {"id": new_user.id, "username": new_user.username})
+        self.assertDictEqual(json.loads(actual_mobile_notifications[0]["data"]["msg"]), {"id": new_user.id, "username": new_user.username})
                 
         
 class TableApiTestCase(ApiTestCase):
