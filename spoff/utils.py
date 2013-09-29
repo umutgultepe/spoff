@@ -4,6 +4,7 @@ from yahoo.oauth import AccessToken
 from push_notifications.models import GCMDevice
 from spoff.models import User
 import json
+from push_notifications.gcm import GCMError
 
 
 def test_message(user_id):
@@ -11,8 +12,11 @@ def test_message(user_id):
     devs = GCMDevice.objects.filter(user=u)
     data = json.dumps({"id": u.id, "username": u.username})
     for dev in devs:
-        dev.send_message(data)
-
+        try:
+            dev.send_message(data)
+        except GCMError, e:
+            print e
+            continue
 
 def get_yahoo_profile(access_token, secret_token):
     oauthapp = OAuthApplication(

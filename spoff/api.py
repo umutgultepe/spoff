@@ -80,27 +80,27 @@ class UserResource(ModelResource):
                 raise ImmediateHttpResponse(HttpResponseBadRequest("missing data"))
             
         profile = get_yahoo_profile(data["access_token"], data["secret_token"])
+        device_id = data.pop("device_id")
+        registration_id = data.pop("registration_id")
             
         try:
             u = User.objects.get(yahoo_id=profile["guid"])
         except User.DoesNotExist:
-            device_id = data.pop("device_id")
-            registration_id = data.pop("registration_id")
             u = User.objects.create(yahoo_id=profile["guid"], email=profile["guid"] + "@yahoo.com", username=profile["nickname"])
             u.save()
-            device, created = GCMDevice.objects.get_or_create(
-                device_id=device_id,
-                registration_id=registration_id,
-                defaults=dict(
-                    user=u,
-                    active=True
-            ))
-            if not created:
-                if device.user != u:
-                    device.user = u
-                    device.save()
-            else:
+        device, created = GCMDevice.objects.get_or_create(
+            device_id=device_id,
+            registration_id=registration_id,
+            defaults=dict(
+                user=u,
+                active=True
+        ))
+        if not created:
+            if device.user != u:
+                device.user = u
                 device.save()
+        else:
+            device.save()
         response_data = {
             "id": u.id,
             "email": u.email,
