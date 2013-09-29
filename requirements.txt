@@ -4,6 +4,7 @@ django-uuidfield
 mimeparse
 south
 oauth
+mock
 simplejson
 psycopg2
 -e git://github.com/Adys/django-push-notifications.git#egg=push_notifications

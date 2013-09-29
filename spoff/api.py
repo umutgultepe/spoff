@@ -36,6 +36,7 @@ class UserAuthentication(ApiKeyAuthentication):
             return True
         return ApiKeyAuthentication.is_authenticated(self, request, **kwargs)
 
+
 class UserResource(ModelResource):
     class Meta:
         queryset = User.objects.all()
@@ -103,6 +104,7 @@ class TableResource(ModelResource):
         allowed_methods = ['get', 'post', 'delete']
         fields = ["creator", "date_created", "code", "id"]
         always_return_data = True
+        detail_uri_name = 'code'
                 
     def obj_create(self, bundle, **kwargs):
         creator = bundle.request.user
@@ -118,27 +120,27 @@ class TableResource(ModelResource):
         bundle.data["members"] = m_list
         return bundle
     
-    def join_table(self, request, pk, **kwargs):
+    def join_table(self, request, code, **kwargs):
         self.is_authenticated(request)
-        table = get_object_or_404(Table, pk=pk)
+        table = get_object_or_404(Table, code=code)
         if not request.user.join_table(table.id):
             raise ImmediateHttpResponse(HttpBadRequest())
-        kwargs["pk"] = pk
+        kwargs["code"] = code
         return self.get_detail(request, **kwargs)
 
-    def leave_table(self, request, pk, **kwargs):
+    def leave_table(self, request, code, **kwargs):
         self.is_authenticated(request)
-        table = get_object_or_404(Table, pk=pk)
+        table = get_object_or_404(Table, code=code)
         if not request.user.leave_table(table.id):
             raise ImmediateHttpResponse(HttpBadRequest())
-        kwargs["pk"] = pk
+        kwargs["code"] = code
         return self.get_detail(request, **kwargs)
     
     def prepend_urls(self):
         return [
-            url(r"^(?P<resource_name>%s)/(?P<pk>\d+)/join%s$" % (self._meta.resource_name, trailing_slash(),),
+            url(r"^(?P<resource_name>%s)/(?P<code>\S+)/join%s$" % (self._meta.resource_name, trailing_slash(),),
                 self.wrap_view('join_table'), name="api_join_table"),
-            url(r"^(?P<resource_name>%s)/(?P<pk>\d+)/leave%s$" % (self._meta.resource_name, trailing_slash(),),
+            url(r"^(?P<resource_name>%s)/(?P<code>\S+)/leave%s$" % (self._meta.resource_name, trailing_slash(),),
                 self.wrap_view('leave_table'), name="api_join_table"),
         ]
         

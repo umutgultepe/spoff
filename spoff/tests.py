@@ -11,7 +11,15 @@ from tastypie.models import ApiKey
 from tastypie.test import ResourceTestCase
 from uuid import uuid4
 import json
+from mock import patch
 
+actual_mobile_notifications = []
+
+def _fake_gcm_send_message(**kwargs):
+
+    global actual_mobile_notifications
+    actual_mobile_notifications.append(kwargs)
+        
 
 class TableTestCase(TestCase):
     def setUp(self):
@@ -68,11 +76,16 @@ class UserApiTestCase(ApiTestCase):
             "yahoo_id": "ifdsg",
             "yahoo_token": "abc",
             "email": "lasmdfsamd@yahoo.com",
-            "device_id": uuid4(),
-            "registration_id": "3fh38",
+            #===================================================================
+            # "device_id": uuid4(),
+            # "registration_id": "3fh38",
+            #===================================================================
             "first_name": "Umut",
             "last_name": "Gultepe"
         }
+        
+        self.table_code = "dinners_stuff"
+        self.table_data = {"code": self.table_code}
     
     def post_user_data(self):
         resp = self.api_client.post("/api/v1/user/", data=self.user_data, **self.json_headers)
@@ -104,7 +117,34 @@ class UserApiTestCase(ApiTestCase):
     def test_cannot_get_details_without_authentication(self):
         resp = self.api_client.get("/api/v1/user/", **self.json_headers)
         self.assertHttpUnauthorized(resp)
+
+    @patch('push_notifications.gcm.gcm_send_message', side_effect=_fake_gcm_send_message)
+    def test_unlock_notification(self, _fake_gcm_send_message):
+        dev = GCMDevice.objects.create(user=self.user, device_id=uuid4(), registration_id="1243")
+        dev.save()
         
+        resp = self.api_client.post("/api/v1/table/", data=self.table_data, **self.headers)
+        self.assertHttpCreated(resp)
+        
+        new_user = User.objects.create(**self.user_data)
+        new_headers = {
+            'CONTENT_TYPE': 'application/json',
+            'HTTP_AUTHORIZATION': self.get_credentials(new_user)
+        }
+        
+        resp = self.api_client.post("/api/v1/table/1/join/", data=self.table_data, **new_headers)
+        self.assertHttpOk(resp)
+        
+        global actual_mobile_notifications
+        actual_mobile_notifications = []
+        
+        resp = self.api_client.post("/api/v1/user/unlocked/", **new_headers)
+        self.assertHttpOk(resp)
+        
+        self.assertEqual(len(actual_mobile_notifications), 1)
+        self.assertEqual(actual_mobile_notifications[0]["registration_id"], dev.registration_id)
+        self.assertDictEqual(json.loads(actual_mobile_notifications[0]["data"]), {"id": new_user.id, "username": new_user.username})
+                
         
 class TableApiTestCase(ApiTestCase):
     
@@ -132,7 +172,7 @@ class TableApiTestCase(ApiTestCase):
         self.assertIn("members", table)
         self.assertEqual(Table.objects.latest("pk").members.count(),1)
         self.assertEqual(table["code"], self.table_code)       
-        resp = self.api_client.delete("/api/v1/table/%s/" % table["id"], **self.headers)
+        resp = self.api_client.delete("/api/v1/table/%s/" % table["code"], **self.headers)
         self.assertHttpAccepted(resp)
         self.assertEqual(Table.objects.count(), 0)
         
@@ -150,12 +190,12 @@ class TableApiTestCase(ApiTestCase):
         
         only_table = Table.objects.get(pk=table["id"])
         # Join a table1
-        resp = self.api_client.post("/api/v1/table/%s/join/" % table["id"], **new_headers)
+        resp = self.api_client.post("/api/v1/table/%s/join/" % self.table_code, **new_headers)
         self.assertHttpOk(resp)
         self.assertEqual(only_table.members.count(), 2)
         
         # leave a table
-        resp = self.api_client.post("/api/v1/table/%s/leave/" % table["id"], **new_headers)
+        resp = self.api_client.post("/api/v1/table/%s/leave/" % self.table_code, **new_headers)
         self.assertHttpOk(resp)
         self.assertEqual(only_table.members.count(), 1)
         
