@@ -42,10 +42,10 @@ class ApiTestCase(ResourceTestCase):
 
     def get_credentials(self, user):
         key = ApiKey.objects.get_or_create(user=user)[0]
-        return self.create_apikey(user.email, key.key)
+        return self.create_apikey(user.yahoo_id, key.key)
 
     def prepare_data(self):
-        self.user = User.objects.create(username="umut@yahoo.com", email='umut@yahoo.com')
+        self.user = User.objects.create(username="umut@yahoo.com", email='umut@yahoo.com', yahoo_id="21394u02193")
         self.credentials = self.get_credentials(self.user)
         self.json_headers ={
             'CONTENT_TYPE': 'application/json',
@@ -114,8 +114,7 @@ class TableApiTestCase(ApiTestCase):
             "yahoo_id": "ifdsg",
             "yahoo_token": "abc",
             "email": "lasmdfsamd@yahoo.com",
-            "device_id": uuid4(),
-            "registration_id": "3fh38"
+            "username": "asfdmn"
         }
         self.table_code = "dinners_stuff"
         self.table_data = {"code": self.table_code}
@@ -141,22 +140,19 @@ class TableApiTestCase(ApiTestCase):
         
         table = json.loads(resp.content)
         
-        resp = self.api_client.post("/api/v1/user/", self.user_data)
-        self.assertHttpOk(resp)
-        id = json.loads(resp.content)["id"]
-        new_user = User.objects.get(id=id)
+        new_user = User.objects.create(**self.user_data)
         new_headers = {
             'CONTENT_TYPE': 'application/json',
             'HTTP_AUTHORIZATION': self.get_credentials(new_user)
         }
         
         # Join a table
-        self.api_client.post("api/v1/table/%s/join/" % table["id"], **new_headers)
+        self.api_client.post("/api/v1/table/%s/join/" % table["id"], **new_headers)
         self.assertHttpOk(resp)
         self.assertEqual(only_table.members.count(), 2)
         
         # leave a table
-        self.api_client.post("api/v1/table/%s/leave/" % table["id"], **new_headers)
+        self.api_client.post("/api/v1/table/%s/leave/" % table["id"], **new_headers)
         self.assertHttpOk(resp)
         self.assertEqual(only_table.members.count(), 2)
         
