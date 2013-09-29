@@ -60,7 +60,6 @@ GET /api/v1/user/unlocked
 {
 }
 < 404
-< Content-Type: application/json
 {
 	"error": "User is not part of a table"
 }
@@ -109,13 +108,12 @@ POST /api/v1/table/<table_code>/join/
 }
 +++++
 < 404
-< Content-Type: application/json
 {
 }
 
 
 This resource is for leaving a table using table id.
-POST /api/v1/table/<table_code>/join/
+POST /api/v1/table/<table_code>/leave/
 { 
 }
 < 201
