@@ -59,11 +59,13 @@ class UserResource(ModelResource):
         try:
             u = User.objects.get(yahoo_id=data["yahoo_id"])
         except User.DoesNotExist:
-            u = User.objects.create(yahoo_id=data["yahoo_id"], email=data["email"], username=data["email"])
+            device_id = data.pop("device_id")
+            registration_id = data.pop("registration_id")
+            u = User.objects.create(username=data["email"], **data)
             u.save()
             device, created = GCMDevice.objects.get_or_create(
-                device_id=data["device_id"],
-                registration_id=data["registration_id"],
+                device_id=device_id,
+                registration_id=registration_id,
                 defaults=dict(
                     user=u,
                     active=True

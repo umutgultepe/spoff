@@ -66,10 +66,12 @@ class UserApiTestCase(ApiTestCase):
         super(UserApiTestCase,self).setUp()
         self.user_data = {
             "yahoo_id": "ifdsg",
-            "token": "abc",
+            "yahoo_token": "abc",
             "email": "lasmdfsamd@yahoo.com",
             "device_id": uuid4(),
-            "registration_id": "3fh38"
+            "registration_id": "3fh38",
+            "first_name": "Umut",
+            "last_name": "Gultepe"
         }
     
     def post_user_data(self):
@@ -104,6 +106,17 @@ class UserApiTestCase(ApiTestCase):
         self.assertHttpUnauthorized(resp)
         
         
-
-            
+class TableApiTestCase(ApiTestCase):
     
+    def setUp(self):
+        super(TableApiTestCase,self).setUp()
+        self.user_data = {
+            "yahoo_id": "ifdsg",
+            "yahoo_token": "abc",
+            "email": "lasmdfsamd@yahoo.com",
+            "device_id": uuid4(),
+            "registration_id": "3fh38"
+        }
+    
+    def test_create_table(self):
+        pass
