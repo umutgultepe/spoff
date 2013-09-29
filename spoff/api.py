@@ -55,12 +55,12 @@ class UserResource(ModelResource):
         
     def post_list(self, request, **kwargs):
         data = self.deserialize(request, request.body, format=request.META.get('CONTENT_TYPE', 'application/json'))
-        keys = ["access_token", "device_id", "registration_id"]
+        keys = ["access_token", "secret_token", "device_id", "registration_id"]
         for k in keys:
             if k not in data:
                 raise ImmediateHttpResponse(HttpResponseBadRequest("missing data"))
             
-        profile = get_yahoo_profile(data["access_token"])
+        profile = get_yahoo_profile(data["access_token"], data["secret_token"])
             
         try:
             u = User.objects.get(yahoo_id=profile["guid"])
