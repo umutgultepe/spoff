@@ -69,8 +69,14 @@ class UserResource(ModelResource):
             data = json.dumps({"id": request.user.id, "username": request.user.username})
             for table in t_list:
                 m_list = table.members.exclude(pk=request.user.pk)
-                devs = GCMDevice.objects.filter(user__in=m_list)
-                devs.send_message(data)
+                for m in m_list:
+                    devs = GCMDevice.objects.filter(user=m)
+                    for dev in devs:
+                        try:
+                            dev.send_message(data)
+                        except GCMError, e:
+                            print e
+                            continue                
         else:
             HttpNotFound(json.dumps({"error": "User is not part of a table"}))
         return self.user_data_response(request)
