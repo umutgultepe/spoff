@@ -68,7 +68,7 @@ class UserResource(ModelResource):
         if t_list.exists():
             for table in t_list:
                 m_list = table.members.exclude(pk=request.user.pk)
-                data = json.dumps({"id": request.user.id, "username": request.user.username, "table_code": table.code})
+                data = json.dumps({"type": 1, "id": request.user.id, "username": request.user.username, "table_code": table.code})
                 for m in m_list:
                     devs = GCMDevice.objects.filter(user=m)
                     for dev in devs:
@@ -152,6 +152,17 @@ class TableResource(ModelResource):
         if not request.user.join_table(table.id):
             raise ImmediateHttpResponse(HttpBadRequest())
         kwargs["code"] = code
+        
+        m_list = table.members.exclude(pk=request.user.pk)
+        data = json.dumps({"type": 2, "id": request.user.id, "username": request.user.username, "table_code": table.code})
+        for m in m_list:
+            devs = GCMDevice.objects.filter(user=m)
+            for dev in devs:
+                try:
+                    dev.send_message(data)
+                except GCMError, e:
+                    print e
+                    continue      
         return self.get_detail(request, **kwargs)
 
     def leave_table(self, request, code, **kwargs):

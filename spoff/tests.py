@@ -135,23 +135,30 @@ class UserApiTestCase(ApiTestCase):
             'HTTP_AUTHORIZATION': self.get_credentials(new_user)
         }
         
+        global actual_mobile_notifications
+        actual_mobile_notifications = []
+        
         resp = self.api_client.post("/api/v1/table/%s/join/" % table.code, data=self.table_data, **new_headers)
         self.assertHttpOk(resp)
         
-        global actual_mobile_notifications
-        actual_mobile_notifications = []
         
         resp = self.api_client.get("/api/v1/user/unlocked/", **new_headers)
         self.assertHttpOk(resp)
         
-        self.assertEqual(len(actual_mobile_notifications), 1)
-        self.assertEqual(dev.registration_id, actual_mobile_notifications[0]["registration_id"])
+        self.assertEqual(len(actual_mobile_notifications), 2)
+        self.assertEqual(dev.registration_id, actual_mobile_notifications[1]["registration_id"])
         self.assertDictEqual(
             json.loads(actual_mobile_notifications[0]["data"]["msg"]),
-            {"id": new_user.id, "username": new_user.username, "table_code": table.code}
+            {"type": 2, "id": new_user.id, "username": new_user.username, "table_code": table.code}
         )
 
-    def test_karma_cycle(self):
+        self.assertDictEqual(
+            json.loads(actual_mobile_notifications[1]["data"]["msg"]),
+            {"type": 1, "id": new_user.id, "username": new_user.username, "table_code": table.code}
+        )
+    
+    @patch('push_notifications.gcm.gcm_send_message', side_effect=_fake_gcm_send_message)
+    def test_karma_cycle(self, _fake_gcm_send_message):
         resp = self.api_client.post("/api/v1/table/", data=self.table_data, **self.headers)
         self.assertHttpCreated(resp)
         table = Table.objects.get(pk=json.loads(resp.content)["id"])
@@ -189,7 +196,8 @@ class TableApiTestCase(ApiTestCase):
         resp = self.api_client.post("/api/v1/table/", data=self.table_data, **self.headers)
         return resp
                 
-    def test_create_delete_table(self):
+    @patch('push_notifications.gcm.gcm_send_message', side_effect=_fake_gcm_send_message)
+    def test_create_delete_table(self, _fake_gcm_send_message):
         resp = self.create_table()
         self.assertHttpCreated(resp)
         self.assertEqual(Table.objects.count(), 1)
@@ -226,8 +234,9 @@ class TableApiTestCase(ApiTestCase):
         self.assertIn("id", table)
         self.assertIn("members", table)
         self.assertIn("creator_id", table)
-        
-    def test_join_leave_table(self):
+    
+    @patch('push_notifications.gcm.gcm_send_message', side_effect=_fake_gcm_send_message)    
+    def test_join_leave_table(self, _fake_gcm_send_message):
         resp = self.create_table()
         self.assertHttpCreated(resp)
         self.assertEqual(Table.objects.count(), 1)
@@ -250,8 +259,9 @@ class TableApiTestCase(ApiTestCase):
         resp = self.api_client.post("/api/v1/table/%s/leave/" % self.table_code, **new_headers)
         self.assertHttpOk(resp)
         self.assertEqual(only_table.members.count(), 1)
-        
-    def test_second_join_leaves_first_table(self):
+
+    @patch('push_notifications.gcm.gcm_send_message', side_effect=_fake_gcm_send_message)        
+    def test_second_join_leaves_first_table(self, _fake_gcm_send_message):
         resp = self.create_table()
         self.assertHttpCreated(resp)
         self.assertEqual(Table.objects.count(), 1)
