@@ -2,6 +2,7 @@ from django.conf.urls.defaults import url
 from django.contrib.auth.models import AnonymousUser
 from django.http.response import HttpResponseBadRequest, HttpResponse
 from push_notifications.models import GCMDevice
+from push_notifications.gcm import GCMError
 from spoff.models import User, Table, TableManager
 from spoff.utils import get_yahoo_profile
 from tastypie.authentication import ApiKeyAuthentication
