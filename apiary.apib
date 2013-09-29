@@ -1,35 +1,50 @@
 HOST: http://www.google.com/
 
---- Sample API v2 ---
+--- Spoff API ---
 ---
 Welcome to the our sample API documentation. All comments can be written in (support [Markdown](http://daringfireball.net/projects/markdown/syntax) syntax)
 ---
 
 --
-Shopping Cart Resources
-The following is a section of resources related to the shopping cart
+User Resource
+Users can be registered with this resource. You can also retrieve you information
 --
-List products added into your shopping-cart. (comment block again in Markdown)
-GET /shopping-cart
+Get the current authenticated users details. Need to have api key authentication.
+GET /api/v1/user/
 < 200
 < Content-Type: application/json
-{ "items": [
-{ "url": "/shopping-cart/1", "product":"2ZY48XPZ", "quantity": 1, "name": "New socks", "price": 1.25 }
-] }
+{ 
+	"id":123,
+	"email": "umutgultepe@yahoo.com",
+	"key": "i12312i312sdcc"
+}
+<401
+< Content-Type: application/json
+{ 
+	"error": "Not authenticated"
+}
 
 
-Save new products in your shopping cart
-POST /shopping-cart
+Login/SignUp with Yahoo. 
+POST /api/v1/user/
 > Content-Type: application/json
-{ "product":"1AB23ORM", "quantity": 2 }
+{
+	"yahoo_id": "3324e12374",
+	"device_id": "1AB23ORM",
+	"registration_id": "afsdfswe213",
+}
 < 201
 < Content-Type: application/json
-{ "status": "created", "url": "/shopping-cart/2" }
+{
+	"id": 123,
+	"email": "umutgultepe@yahoo.com",
+	"key": "i12312i312sdcc"
+}
 
 
--- Payment Resources --
-This resource allows you to submit payment information to process your *shopping cart* items
-POST /payment
+-- Table Resources --
+This resource allows you to create, join, leave and delete tables
+POST /api/v1/table/
 { "cc": "12345678900", "cvc": "123", "expiry": "0112" }
 < 200
 { "receipt": "/payment/receipt/1" }

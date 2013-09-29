@@ -4,11 +4,11 @@ when you run "manage.py test".
 
 Replace this with more appropriate tests for your application.
 """
-
+import json
 from django.test import TestCase
-from tastypie.test import ResourceTestCase
-from tastypie.models import ApiKey
 from spoff.models import User
+from tastypie.models import ApiKey
+from tastypie.test import ResourceTestCase
 
 
 class TableTestCase(TestCase):
@@ -45,4 +45,35 @@ class ApiTestCase(ResourceTestCase):
     def prepare_data(self):
         self.user = User.objects.create(email='umut@yahoo.com')
         self.credentials = self.get_credentials(self.user)
+        self.headers = {
+            'CONTENT_TYPE': 'application/json',
+            'HTTP_AUTHORIZATION': self.credentials
+        }
+    
+    def setUp(self):
+        self.prepare_data()
         
+        
+class UserApiTestCase(ApiTestCase):
+    
+    def test_user_registration(self):
+        resp = self.api_client.post("/api/v1/user/", data={"token": "abc", "email": "lasmdfsamd", "device_id": "1239ye89d"})
+        self.assertHttpOK(resp)
+        user = json.loads(resp)
+        self.assertIn("id", user)
+        self.assertIn("email", user)
+        self.assertIn("key", user)
+        
+        
+    def test_get_my_details(self):
+        resp = self.api_client.get("/api/v1/user/", **self.headers)
+        self.assertHttpOK(resp)
+        user = json.loads(resp)
+        self.assertIn("id", user)
+        self.assertIn("email", user)
+        self.assertIn("key", user)        
+        
+        
+
+            
+    
