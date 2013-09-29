@@ -171,6 +171,7 @@ class TableApiTestCase(ApiTestCase):
         table = json.loads(resp.content)
         self.assertIn("id", table)
         self.assertIn("members", table)
+        self.assertIn("creator_id", table)
         self.assertEqual(Table.objects.latest("pk").members.count(),1)
         self.assertEqual(table["code"], self.table_code)       
         resp = self.api_client.delete("/api/v1/table/%s/" % table["code"], **self.headers)

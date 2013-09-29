@@ -137,6 +137,7 @@ class TableResource(ModelResource):
         for u in bundle.obj.members.all():
             m_list.append({"id": u.id, "username": u.username})
         bundle.data["members"] = m_list
+        bundle.data["creator_id"] = bundle.obj.creator_id
         return bundle
     
     def join_table(self, request, code, **kwargs):
