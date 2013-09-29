@@ -7,7 +7,7 @@ from spoff.utils import get_yahoo_profile
 from tastypie.authentication import ApiKeyAuthentication
 from tastypie.authorization import ReadOnlyAuthorization, Authorization
 from tastypie.exceptions import ImmediateHttpResponse
-from tastypie.http import HttpBadRequest, HttpNotFound
+from tastypie.http import HttpBadRequest, HttpNotFound, HttpConflict
 from tastypie.models import ApiKey
 from tastypie.resources import ModelResource
 from tastypie.utils.urls import trailing_slash
@@ -127,7 +127,9 @@ class TableResource(ModelResource):
                 
     def obj_create(self, bundle, **kwargs):
         creator = bundle.request.user
-        code = bundle.data.get("code", Table.objects.get_unique_code()) 
+        code = bundle.data.get("code", Table.objects.get_unique_code())
+        if not Table.objects.check_unique_code(code):
+            raise ImmediateHttpResponse(HttpConflict(json.dumps({"error": "Table with code exists"})))
         bundle = super(TableResource, self).obj_create(bundle, code=code, creator=creator, **kwargs)
         bundle.obj.members.add(bundle.request.user)
         return bundle

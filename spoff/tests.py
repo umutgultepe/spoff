@@ -162,11 +162,11 @@ class TableApiTestCase(ApiTestCase):
     
     def create_table(self):
         resp = self.api_client.post("/api/v1/table/", data=self.table_data, **self.headers)
-        self.assertHttpCreated(resp)
         return resp
                 
     def test_create_delete_table(self):
         resp = self.create_table()
+        self.assertHttpCreated(resp)
         self.assertEqual(Table.objects.count(), 1)
         table = json.loads(resp.content)
         self.assertIn("id", table)
@@ -178,8 +178,16 @@ class TableApiTestCase(ApiTestCase):
         self.assertHttpAccepted(resp)
         self.assertEqual(Table.objects.count(), 0)
 
+    def test_cannot_duplicate_table_code(self):
+        resp = self.create_table()
+        self.assertHttpCreated(resp)
+        self.assertEqual(Table.objects.count(), 1)
+        resp = self.create_table()
+        self.assertHttpConflict(resp)
+
     def test_get_table_details(self):
         resp = self.create_table()
+        self.assertHttpCreated(resp)
         self.assertEqual(Table.objects.count(), 1)
         table = json.loads(resp.content)
         resp = self.api_client.get("/api/v1/table/%s/" % table["code"], **self.headers)
@@ -191,6 +199,7 @@ class TableApiTestCase(ApiTestCase):
         
     def test_join_leave_table(self):
         resp = self.create_table()
+        self.assertHttpCreated(resp)
         self.assertEqual(Table.objects.count(), 1)
         
         table = json.loads(resp.content)
