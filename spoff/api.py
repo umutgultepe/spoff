@@ -129,7 +129,7 @@ class TableResource(ModelResource):
         creator = bundle.request.user
         code = bundle.data.get("code", Table.objects.get_unique_code())
         if not Table.objects.check_unique_code(code):
-            raise ImmediateHttpResponse(HttpConflict(json.dumps({"error": "Table with code exists"})))
+            raise ImmediateHttpResponse(HttpConflict(json.dumps({"error": "Table code already exists"})))
         bundle = super(TableResource, self).obj_create(bundle, code=code, creator=creator, **kwargs)
         bundle.obj.members.add(bundle.request.user)
         return bundle
